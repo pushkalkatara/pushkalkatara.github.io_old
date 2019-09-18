@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+    content="AUV Mission Planning using State Machines Robotics Operating System provides SMACH package which is useful when you want a robot to execute some complex plan, where all possible states and state transitions can be described explicitly. This basically takes the hacking out of hacking together different modules to make robotics systems perform specific complex tasks with state management.
+
+
+  Fast prototyping: The straightforward Python-based SMACH syntax makes it easy to quickly prototype a state machine and start running it.
+  Complex state machines: SMACH allows you to design, maintain and debug large, complex hierarchical state machines.
+  Introspection: SMACH gives you full introspection in your state machines, state transitions, data flow, etc.
+
+
+ CS Undergrad interested in Robotics, Deep Learning and Artificial Intelligence">
+  <title> AUV Mission Planning using State Machines - Hi! Pushkal here. </title>
+
+  <!-- stylesheets -->
+  <link media="all" href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+  <link media="all" href="//netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+  <link media="all" rel="stylesheet" href="/assets/css/site.css">
+
+</head>
+
+
+<body>
+  <header>
+  <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      </div>
+
+      <div class="collapse navbar-collapse" id="navbar">
+
+        <ul id="main-menu" class="nav navbar-nav navbar-right">
+
+          
+            <li><a href="/">
+              <i class="fa fa-home"></i> Home</a>
+            </li>
+          
+            <li><a href="/about/">
+              <i class="fa fa-info-circle"></i> About Me</a>
+            </li>
+          
+            <li><a href="/blog">
+              <i class="fa fa-info-circle"></i> Blog</a>
+            </li>
+          
+
+        </ul>
+      </div>
+      <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container-fluid -->
+  </nav>
+
+</header>
+
+  
+  <div class="container">
+  <div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-offset-1 col-md-10 col-lg-offset-2 col-lg-8">
+      <div class="page">
+
+        <header class="page-header">
+          <h3 class="page-title"><a href="/blog/2018/01/06/mp.html">AUV Mission Planning using State Machines</a></h3>
+          <div class="post-metadata">
+            <div> <i class="fa fa-calendar"></i>
+              <time>
+                Saturday, January 06, 2018
+              </time>
+            </div>
+            <div> <i class="fa fa-tag"></i>
+                
+                  <span class="label label-tag">Mission Planner</span>
+                
+                  <span class="label label-tag">SMACH</span>
+                
+                  <span class="label label-tag">SRMAUV</span>
+                
+            </div>
+          </div>
+
+        </header>
+
+        <article class="page-content">
+          <p>Robotics Operating System provides SMACH package which is useful when you want a robot to execute some complex plan, where all possible states and state transitions can be described explicitly. This basically takes the hacking out of hacking together different modules to make robotics systems perform specific complex tasks with state management.</p>
+
+<ul>
+  <li>Fast prototyping: The straightforward Python-based SMACH syntax makes it easy to quickly prototype a state machine and start running it.</li>
+  <li>Complex state machines: SMACH allows you to design, maintain and debug large, complex hierarchical state machines.</li>
+  <li>Introspection: SMACH gives you full introspection in your state machines, state transitions, data flow, etc.
+<!--more--></li>
+</ul>
+
+<h3 id="application">Application:</h3>
+<p>Consider a situation of an AUV which needs to perform tasks underwater autonomously. An autonomous system completely reply on sensor data and as the sensors are noisy, there are always chances of a system to fail. Actions performed underwater by the vehicle should be considered as an state and the state transitions must be logged for further diagonosis. Also to perform specific tasks underwater, states need to be pre-arraged in a mission planner to search, attempt and preempt the task in dynamic conditions. It is basically a robust implementation of decision rules with specified conditions.</p>
+
+<h3 id="documentation">Documentation:</h3>
+<p>Smach has containers which contains states with defined state outcomes. Each container and state is declared on construction with defined transition outcomes. A state might provide outcomes such as ‘succeeded’, ‘aborted’, or ‘preempted’. These outcomes would be associated with other states, thus forming a transition. Also Smach provides interface to pass data between different states using Input and Output Keys. Also, The State base class includes an interface for coordinating preempt requests between containers and contained states. Further, we can visualize the states and containers with user data using the SMACH Viewer.</p>
+
+<hr />
+
+<h3 id="inference">Inference</h3>
+<p>I implemented smach in an Autonomous Underwater Vehicle -<br />
+Initial task of an underwater vehicle is to sink underwater i.e. go to a certain depth underwater. Using the DepthActionClient, we can feed a desired depth as a target and the DepthActionServer would try to achieve this depth. But sometimes due to external factors, an AUV may deroute not completeting the DepthGoal. As it as an autonomous system, it needs to be aware of its condition inside. Hence, a SimpleStateMachine Container comes in play. SMACH provides <a href="http://wiki.ros.org/smach/Tutorials/Simple%20Action%20State">SimpleActionState</a> that call directly into the actionlib interface.</p>
+
+<ul>
+  <li>Create a StateMachine (‘sink_state’) and assign outcomes [‘sink’, ‘not-sink’]</li>
+  <li>Create a Callback to check the output received from Actionlib and SimpleActionState to send the goal, further decide the outcome of the state as sink or not sink.<br />
+<img src="/assets/images/mission_planner/alpheus_state.png" alt="Introspection" /></li>
+</ul>
+
+<p>Looking into further states, the complexitiy of mission planner increases. Consider a situtation in which an AUV needs to turn at an angle 30 degrees with a depth goal of extra 10m deep. These are two parallel states which needs to be achieved using the DepthActionClient and DepthActionServer. SMACH provides Concurrent State Machines for implementing parallel states.</p>
+
+<ul>
+  <li>Create 2 state machines classes related to depth and heading control.</li>
+  <li>Create a callback to check the output recevied from Actionlib and SimpleActionState to send the goal, further callback decides the next state accroding to the reply from actionlib.
+<img src="/assets/images/mission_planner/smacch.png" alt="Introspection" /><br />
+Similarly all the tasks to be performed can be implemented in Hierarchical, Concurrent, Sequence or Iterative methods using Smach library.</li>
+</ul>
+
+<p>Here is a simulation of mission planner tests-
+<img src="/assets/images/mission_planner/mission.gif" alt="MissionPlannner" /></p>
+
+        </article>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  
+
+<footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-offset-3 col-lg-6">
+            <div class="row">
+              <div class="col-xs-12 text-center">
+                <small>&copy; Pushkal Katara, 2019</small>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+  <!--<script src="/assets/js/prism.js"></script> -->
+  <script src="/assets/js/site.js"></script>
+
+</body>
+
+</html>

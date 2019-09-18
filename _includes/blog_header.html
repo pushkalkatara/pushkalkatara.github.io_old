@@ -1,0 +1,18 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<div class="jumbotron blog-header">
+  <div class="container">
+    <div class="row">
+        <div class="right centered-text col-xs-6 col-sm-6 col-md-offset-1 col-md-10 col-lg-offset-2 col-lg-8">
+          <img style="float:left; padding: 10px 10px 10px 10px; border-radius: 50%;" width="200" height="200" src="https://miro.medium.com/fit/c/256/256/1*DbuWoyWb2AyDtDsPwupIFQ.jpeg " alt="Avatar" />
+          <div class="content-heading"><h2>{{site.title}}</h2></div>
+          <p>{{site.description}}</p>
+          <ul class="social-icons">
+            {% for socialButton in site.data.personal.social %}
+              <li><a href="{{ socialButton[1].url }}" class="social-icon {{ socialButton[1].btnClass }}"> <i class="fa {{socialButton[1].logo}}"></i></a></li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

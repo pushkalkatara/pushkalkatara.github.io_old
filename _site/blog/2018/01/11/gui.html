@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+    content="Graphical User Interface for UUVs Visualizing Telemetry Information, Sensor data, mission status with feedback and controller’s dynamics is important for an Unmanned Underwater Vehicles debugging. For the purpose a fast implementation of GUI is important. Tkinter, a python library provides easy functions to implement graphical user interfaces. It is a thin object-oriented layer on top of Tcl/Tk.
+
+ CS Undergrad interested in Robotics, Deep Learning and Artificial Intelligence">
+  <title> Graphical User Interface for UUVs - Hi! Pushkal here. </title>
+
+  <!-- stylesheets -->
+  <link media="all" href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+  <link media="all" href="//netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+  <link media="all" rel="stylesheet" href="/assets/css/site.css">
+
+</head>
+
+
+<body>
+  <header>
+  <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      </div>
+
+      <div class="collapse navbar-collapse" id="navbar">
+
+        <ul id="main-menu" class="nav navbar-nav navbar-right">
+
+          
+            <li><a href="/">
+              <i class="fa fa-home"></i> Home</a>
+            </li>
+          
+            <li><a href="/about/">
+              <i class="fa fa-info-circle"></i> About Me</a>
+            </li>
+          
+            <li><a href="/blog">
+              <i class="fa fa-info-circle"></i> Blog</a>
+            </li>
+          
+
+        </ul>
+      </div>
+      <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container-fluid -->
+  </nav>
+
+</header>
+
+  
+  <div class="container">
+  <div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-offset-1 col-md-10 col-lg-offset-2 col-lg-8">
+      <div class="page">
+
+        <header class="page-header">
+          <h3 class="page-title"><a href="/blog/2018/01/11/gui.html">Graphical User Interface for UUVs</a></h3>
+          <div class="post-metadata">
+            <div> <i class="fa fa-calendar"></i>
+              <time>
+                Thursday, January 11, 2018
+              </time>
+            </div>
+            <div> <i class="fa fa-tag"></i>
+                
+                  <span class="label label-tag">Mission Planner</span>
+                
+                  <span class="label label-tag">SMACH</span>
+                
+                  <span class="label label-tag">SRMAUV</span>
+                
+                  <span class="label label-tag">Actionlib</span>
+                
+                  <span class="label label-tag">GUI</span>
+                
+                  <span class="label label-tag">Telemetry</span>
+                
+                  <span class="label label-tag">Tkinter</span>
+                
+            </div>
+          </div>
+
+        </header>
+
+        <article class="page-content">
+          <p>Visualizing Telemetry Information, Sensor data, mission status with feedback and controller’s dynamics is important for an Unmanned Underwater Vehicles debugging. For the purpose a fast implementation of GUI is important. <a href="https://wiki.python.org/moin/TkInter">Tkinter</a>, a python library provides easy functions to implement graphical user interfaces. It is a thin object-oriented layer on top of Tcl/Tk.
+<!--more--></p>
+
+<p>Main issue was to integrate information from ROS(Robotics Operating System) messages, services, actions with GUI using Tkinter. As Tkinter runs its own loop(root.mainloop()) and ROS has own loop (rospy.spin()). Conflicting these two loops, getting information from ROS Subscriber callbacks, sending actions as actionlib client was a major issue. But while implementing, ROS accepted Tkinter’s mainloop as its own rospy.spin() to update the Subscribers and call the callback functions. Hence, Subscribing to a topic in init of a class and creating its callback to perform GUI operations worked out.<br />
+Also several tasks like integrating actionlib into GUI requires threading as sending a goal and waiting for the goal may stall the GUI’s main loop.</p>
+
+<p>The whole implementation is a flexible Object oriented approach as to create modules(grids in Tkinter) of classes predefined of particular ROS messages.s A structure of a grid in the GUI to display the message is also defined in the class. Creating objects of these classes and stacking on rows and columns as arguments in the main GUI is possible for flexibility.</p>
+
+<p>Currently GUI supports 3 frames:</p>
+
+<h2 id="telemetry-ui">Telemetry UI</h2>
+<p>Frame is used to visualize all sensor information available from the AUV. It subscribes to all the topics realted to sensor data like, /imu/data, /pressure etc. The main tkinter loop spins and calls the callback functions of all the subscribers to update the data from corresponding topic.
+<img src="/assets/images/gui/telemetry.gif" alt="1" /></p>
+
+<h2 id="controller-ui">Controller UI</h2>
+<p>Frame is used while testing the AUV, it has integrated Actionlib clients, where a goal is received from the GUI and sent to the server. Also dynamically PID values can be altered. Integrating Actionlib required threading as the whole task of actionlib cannot be performed in the Tkinter’s main loop.
+<img src="/assets/images/gui/actionlib.gif" alt="2" /></p>
+
+<h2 id="image-processing-suite">Image Processing Suite</h2>
+<p>Frame is used to hardcode HSV Values to detect underwater objects like Colored Buoys and colored pipe of gates underwater. Dynamically HSV values can be altered and tuned and verified in the Processed Image through GUI. It subscribes to the Image processing script running and dynamically alters the HSV values through dynamic reconfigure server running on a alternate thread. Alternatively we can create a topic too which consists of HSV Values and publish when slider is changed. As ROS sends images in the form of Image Message, cv_bridge package converts the Ros Image message to OpenCV compatible image. But Tkinter also doesnt support OpenCV numpy arrays to display as image. Workaround over this was using PIL library to display image in a Tkinter label.</p>
+
+        </article>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  
+
+<footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-offset-3 col-lg-6">
+            <div class="row">
+              <div class="col-xs-12 text-center">
+                <small>&copy; Pushkal Katara, 2019</small>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+  <!--<script src="/assets/js/prism.js"></script> -->
+  <script src="/assets/js/site.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+    content="Interactive Wall using Kinect and Servos An Interactive wall is constructed of 40 servo motors embedded in the wall connected to a microcontroller and an RGB Camera with a depth sensor,
+whole setup connected to a microprocessor. Object or human, if detected in the threshold using the RGB camera, servo in front of the object, gets initialized.
+The servo updates with the change in the captured image creating a beautiful pattern. This was my first internship project at Proxbotics Creation Technologies.
+
+ CS Undergrad interested in Robotics, Deep Learning and Artificial Intelligence">
+  <title> Interactive Wall using Kinect and Servos - Hi! Pushkal here. </title>
+
+  <!-- stylesheets -->
+  <link media="all" href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+  <link media="all" href="//netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+  <link media="all" rel="stylesheet" href="/assets/css/site.css">
+
+</head>
+
+
+<body>
+  <header>
+  <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      </div>
+
+      <div class="collapse navbar-collapse" id="navbar">
+
+        <ul id="main-menu" class="nav navbar-nav navbar-right">
+
+          
+            <li><a href="/">
+              <i class="fa fa-home"></i> Home</a>
+            </li>
+          
+            <li><a href="/about/">
+              <i class="fa fa-info-circle"></i> About Me</a>
+            </li>
+          
+            <li><a href="/blog">
+              <i class="fa fa-info-circle"></i> Blog</a>
+            </li>
+          
+
+        </ul>
+      </div>
+      <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container-fluid -->
+  </nav>
+
+</header>
+
+  
+  <div class="container">
+  <div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-offset-1 col-md-10 col-lg-offset-2 col-lg-8">
+      <div class="page">
+
+        <header class="page-header">
+          <h3 class="page-title"><a href="/post/2017/06/06/interactive-wall.html">Interactive Wall using Kinect and Servos</a></h3>
+          <div class="post-metadata">
+            <div> <i class="fa fa-calendar"></i>
+              <time>
+                Tuesday, June 06, 2017
+              </time>
+            </div>
+            <div> <i class="fa fa-tag"></i>
+                
+                  <span class="label label-tag">Microsoft-Kinect</span>
+                
+                  <span class="label label-tag">Raspberry-Pi</span>
+                
+                  <span class="label label-tag">Arduino</span>
+                
+                  <span class="label label-tag">Servo</span>
+                
+                  <span class="label label-tag">ProcessingIDE</span>
+                
+            </div>
+          </div>
+
+        </header>
+
+        <article class="page-content">
+          <p>An Interactive wall is constructed of 40 servo motors embedded in the wall connected to a microcontroller and an RGB Camera with a depth sensor,
+whole setup connected to a microprocessor. Object or human, if detected in the threshold using the RGB camera, servo in front of the object, gets initialized.
+The servo updates with the change in the captured image creating a beautiful pattern. This was my first internship project at Proxbotics Creation Technologies.</p>
+
+<!--more-->
+<p><br /></p>
+<h4 id="microsoft-kinect-sensor">Microsoft Kinect Sensor</h4>
+<p>Kinect sensor features an RGB camera, a depth sensor consisting of an infrared laser projector and an infrared CMOS sensor, and a multi-array microphone.
+It also contains a LED light, a three-axis accelerometer, and a small servo controlling the tilt of the device.
+Kinect’s IR projector sends out a pattern of infrared light beams, which bounces on the objects and is captured by the standard CMOS image sensor.
+This captured image is passed on to the onboard PrimeSense PS1080 chip to be translated into the VGA sized depth image.</p>
+<p align="center">   
+<img src="/assets/images/interactivewall/kinect.png" width="400" height="200" align="center" />
+</p>
+<p><br /></p>
+<h4 id="servo-motors">Servo Motors</h4>
+<p>Servos are DC motors that include a feedback mechanism that allows you to keep track of the position of the motor at every moment.
+The way you control a servo is by sending it pulses with a specific duration. Generally, the range of a servo goes from 1 millisecond
+for 0 degrees to 2 milliseconds for 180 degrees. You need to refresh your control signals every 20ms because the servo expects to get an
+update every 20ms, or 50 times per second.</p>
+<p align="center">
+<img src="/assets/images/interactivewall/pwm.jpg" width="600" height="300" align="center" />
+</p>
+
+<p><br /></p>
+<h4 id="16-channel-pwmservo-controller">16 Channel PWM/Servo Controller</h4>
+<p>An i2c-controlled PWM driver with a built-in clock used to control 16 free-running PWM outputs! You can even chain up 62 breakouts to
+control up to 992 PWM outputs. <br />
+<br /></p>
+<h4 id="hardware-interfacing">Hardware Interfacing</h4>
+
+<ul>
+  <li>
+    <p>Setting Up Raspberry Pi 3 for Kinect Support:   <br />
+Install Raspbian Jessie and boot-up Raspberry-Pi and follow the following steps to setup libfreenect open-source driver for Kinect interfacing –</p>
+  </li>
+  <li>Installing Dependencies:
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>apt-get update
+<span class="nb">sudo </span>apt-get upgrade
+<span class="nb">sudo </span>apt-get install cmake libudev0 libudev-dev freeglut3 freeglut3-dev libxmu6 libxmu-dev libxi6 libxi-dev
+</code></pre></div>    </div>
+  </li>
+  <li>Setting Up libfreenect Driver
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone git://github.com/OpenKinect/libfreenect.git
+<span class="nb">cd </span>libfreenect
+mkdir build
+<span class="nb">cd </span>build
+cmake <span class="nt">-L</span> ..
+make
+<span class="nb">sudo </span>make install
+<span class="nb">sudo </span>ldconfig /usr/local/lib64/
+</code></pre></div>    </div>
+  </li>
+  <li>To use Kinect as a non-root user
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>adduser <span class="nv">$USER</span> video
+<span class="nb">sudo </span>adduser <span class="nv">$USER</span> plugdev
+<span class="nb">sudo </span>nano /etc/udev/rules.d/51-kinect.rules
+</code></pre></div>    </div>
+  </li>
+  <li>Paste the following lines in the newly created file
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># ATTR{product}=="Xbox NUI Motor"</span>
+<span class="nv">SUBSYSTEM</span><span class="o">==</span><span class="s2">"usb"</span>, ATTR<span class="o">{</span>idVendor<span class="o">}==</span><span class="s2">"045e"</span>, ATTR<span class="o">{</span>idProduct<span class="o">}==</span><span class="s2">"02b0"</span>, <span class="nv">MODE</span><span class="o">=</span><span class="s2">"0666"</span>
+<span class="c"># ATTR{product}=="Xbox NUI Audio"</span>
+<span class="nv">SUBSYSTEM</span><span class="o">==</span><span class="s2">"usb"</span>, ATTR<span class="o">{</span>idVendor<span class="o">}==</span><span class="s2">"045e"</span>, ATTR<span class="o">{</span>idProduct<span class="o">}==</span><span class="s2">"02ad"</span>, <span class="nv">MODE</span><span class="o">=</span><span class="s2">"0666"</span>
+<span class="c"># ATTR{product}=="Xbox NUI Camera"</span>
+<span class="nv">SUBSYSTEM</span><span class="o">==</span><span class="s2">"usb"</span>, ATTR<span class="o">{</span>idVendor<span class="o">}==</span><span class="s2">"045e"</span>, ATTR<span class="o">{</span>idProduct<span class="o">}==</span><span class="s2">"02ae"</span>, <span class="nv">MODE</span><span class="o">=</span><span class="s2">"0666"</span>
+<span class="c"># ATTR{product}=="Xbox NUI Motor"</span>
+<span class="nv">SUBSYSTEM</span><span class="o">==</span><span class="s2">"usb"</span>, ATTR<span class="o">{</span>idVendor<span class="o">}==</span><span class="s2">"045e"</span>, ATTR<span class="o">{</span>idProduct<span class="o">}==</span><span class="s2">"02c2"</span>, <span class="nv">MODE</span><span class="o">=</span><span class="s2">"0666"</span>
+<span class="c"># ATTR{product}=="Xbox NUI Motor"</span>
+<span class="nv">SUBSYSTEM</span><span class="o">==</span><span class="s2">"usb"</span>, ATTR<span class="o">{</span>idVendor<span class="o">}==</span><span class="s2">"045e"</span>, ATTR<span class="o">{</span>idProduct<span class="o">}==</span><span class="s2">"02be"</span>, <span class="nv">MODE</span><span class="o">=</span><span class="s2">"0666"</span>
+<span class="c"># ATTR{product}=="Xbox NUI Motor"</span>
+<span class="nv">SUBSYSTEM</span><span class="o">==</span><span class="s2">"usb"</span>, ATTR<span class="o">{</span>idVendor<span class="o">}==</span><span class="s2">"045e"</span>, ATTR<span class="o">{</span>idProduct<span class="o">}==</span><span class="s2">"02bf"</span>, <span class="nv">MODE</span><span class="o">=</span><span class="s2">"0666"</span>
+</code></pre></div>    </div>
+  </li>
+  <li>LogOut and Log back in, open terminal and test with:
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>freenect-glview
+</code></pre></div>    </div>
+  </li>
+</ul>
+<p align="center"> Image View <br />
+<img src="/assets/images/interactivewall/kinect2.jpeg" width="500" height="250" align="center" />
+</p>
+
+<p align="center"> Connections:  <br />
+<img src="/assets/images/interactivewall/kinect.jpeg" width="500" height="200" />
+</p>
+<p><br /></p>
+<h4 id="control-code">Control Code</h4>
+<ul>
+  <li>
+    <p>Approach 1 – Python + Raspberry Pi 3B + 16 Channel PWM Servo Driver</p>
+  </li>
+  <li>
+    <p>Approach 2 – Processing IDE + Raspberry Pi 3B + 16 Channel PWM Servo Driver</p>
+  </li>
+  <li>
+    <p>Approach 3 – Processing IDE + Raspberry Pi 3B + Arduino(Serial Comm.) + 16 Channel PWM Servo Driver</p>
+  </li>
+  <li>
+    <p>Approach 4 – Processing IDE + Raspberry Pi 3b + Arduino Firmata + 16 Channel PWM Servo Driver</p>
+  </li>
+</ul>
+
+        </article>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  
+
+<footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-offset-3 col-lg-6">
+            <div class="row">
+              <div class="col-xs-12 text-center">
+                <small>&copy; Pushkal Katara, 2019</small>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+  <!--<script src="/assets/js/prism.js"></script> -->
+  <script src="/assets/js/site.js"></script>
+
+</body>
+
+</html>

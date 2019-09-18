@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+    content="Actionlib in AUV Software Architecture Robotics Operating System provides actionlib package which is a robust implementation to perfrom tasks in a robot, I implemented Actionlib in Autonomous Underwater Vehicle’s software stack to perfrom goals under water with logging states.
+
+ CS Undergrad interested in Robotics, Deep Learning and Artificial Intelligence">
+  <title> Actionlib in AUV Software Architecture - Hi! Pushkal here. </title>
+
+  <!-- stylesheets -->
+  <link media="all" href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+  <link media="all" href="//netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+  <link media="all" rel="stylesheet" href="/assets/css/site.css">
+
+</head>
+
+
+<body>
+  <header>
+  <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      </div>
+
+      <div class="collapse navbar-collapse" id="navbar">
+
+        <ul id="main-menu" class="nav navbar-nav navbar-right">
+
+          
+            <li><a href="/">
+              <i class="fa fa-home"></i> Home</a>
+            </li>
+          
+            <li><a href="/about/">
+              <i class="fa fa-info-circle"></i> About Me</a>
+            </li>
+          
+            <li><a href="/blog">
+              <i class="fa fa-info-circle"></i> Blog</a>
+            </li>
+          
+
+        </ul>
+      </div>
+      <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container-fluid -->
+  </nav>
+
+</header>
+
+  
+  <div class="container">
+  <div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-offset-1 col-md-10 col-lg-offset-2 col-lg-8">
+      <div class="page">
+
+        <header class="page-header">
+          <h3 class="page-title"><a href="/blog/2017/11/22/actionlib.html">Actionlib in AUV Software Architecture</a></h3>
+          <div class="post-metadata">
+            <div> <i class="fa fa-calendar"></i>
+              <time>
+                Wednesday, November 22, 2017
+              </time>
+            </div>
+            <div> <i class="fa fa-tag"></i>
+                
+                  <span class="label label-tag">Mission Planner</span>
+                
+                  <span class="label label-tag">Actionlib</span>
+                
+                  <span class="label label-tag">SRMAUV</span>
+                
+            </div>
+          </div>
+
+        </header>
+
+        <article class="page-content">
+          <p>Robotics Operating System provides actionlib package which is a robust implementation to perfrom tasks in a robot, I implemented Actionlib in Autonomous Underwater Vehicle’s software stack to perfrom goals under water with logging states.
+<!--more--></p>
+
+<h2 id="actionlib-usecase">Actionlib Usecase</h2>
+<p>To perform particular tasks in robots we have cases which include sending a request to a node, and also receive a reply to the request.
+We can achieve this using ROS Services but in some cases if the service takes a long time to execute, the user might want the
+ability to cancel the request during execution or get periodic feedback about how the request is progressing. The actionlib package provides -</p>
+<ul>
+  <li>Tools to create servers that execute long-running goals that can be preempted.</li>
+  <li>Client interface to send requests to the server.</li>
+</ul>
+
+<p>Take an example of an underwater vehicle which needs to reach a particular depth. Say from 5m to 10m. So with the DepthServer running in ROS Environment, any client can send
+depth goals to the server stating that the vehicle needs to go to a depth of 10m.</p>
+
+<p><img src="http://wiki.ros.org/actionlib?action=AttachFile&amp;do=get&amp;target=client_server_interaction.png" alt="ROS Server" /></p>
+
+<hr />
+
+<h2 id="actionlib-message">Actionlib Message:</h2>
+
+<p>The ActionClient and ActionServer communicate via a “ROS Action Protocol”. In order for the client and server to communicate, we need to define action specific messages.</p>
+
+<p>Message Format:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Define the goal
+float32 depth_setpoint
+---
+# Define the result
+float32 depth_final
+---
+# Define a feedback message
+float32 depth_error
+</code></pre></div></div>
+
+<h2 id="actionlib-cmake-settings">Actionlib CMake Settings</h2>
+<p>These files are placed in a package’s ./action directory, lets call it DepthAction.action and the CMakeLists.txt must be updated as</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>find_package(catkin REQUIRED genmsg actionlib_msgs actionlib)
+add_action_files(DIRECTORY action FILES Depth.action)
+generate_messages(DEPENDENCIES actionlib_msgs)
+</code></pre></div></div>
+<p>Further package.xml must be updated as</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;build_depend&gt;actionlib&lt;/build_depend&gt;
+&lt;build_depend&gt;actionlib_msgs&lt;/build_depend&gt;
+&lt;run_depend&gt;actionlib&lt;/run_depend&gt;
+&lt;run_depend&gt;actionlib_msgs&lt;/run_depend&gt;
+</code></pre></div></div>
+
+<p>This would generate following messages:</p>
+<ul>
+  <li>DepthAction.msg</li>
+  <li>DepthActionGoal.msg</li>
+  <li>DepthActionResult.msg</li>
+  <li>DepthActionFeedback.msg</li>
+  <li>DepthGoal.msg</li>
+  <li>DepthResult.msg</li>
+  <li>DepthFeedback.msg</li>
+</ul>
+
+<p>These messages are then used internally by actionlib to communicate between the ActionClient and ActionServer.</p>
+
+<hr />
+<h2 id="actionclient">ActionClient</h2>
+<p>Further we need to write ActionServer which keeps searching for ActionClients.</p>
+
+<ul>
+  <li><a href="http://wiki.ros.org/actionlib_tutorials/Tutorials/Writing%20a%20Simple%20Action%20Server%20using%20the%20Execute%20Callback%20%28Python%29">ActionServer</a> - Receives the goal from client, tracks its status, performs operation,  and return the results. It also checks if user requested preempts.</li>
+  <li><a href="http://wiki.ros.org/actionlib_tutorials/Tutorials/Writing%20a%20Simple%20Action%20Client%20%28Python%29">ActionClient</a> - Sends a goal to the ActionServer, can be used in GUIs and Mission Planners to send particular goals in manned and autonomous systems.<br />
+Here’s my implementation of DepthServer and DepthClient in Autonomous Underwater Vehicle -</li>
+</ul>
+
+<p><img src="/assets/images/actionlib/action.gif" alt="Alpheus Depth Action Server" /></p>
+
+        </article>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  
+
+<footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-offset-3 col-lg-6">
+            <div class="row">
+              <div class="col-xs-12 text-center">
+                <small>&copy; Pushkal Katara, 2019</small>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+  <!--<script src="/assets/js/prism.js"></script> -->
+  <script src="/assets/js/site.js"></script>
+
+</body>
+
+</html>
